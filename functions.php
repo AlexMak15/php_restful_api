@@ -1,5 +1,6 @@
 <?php
-function getUsers ($pdo) {
+function getUsers ($pdo): void
+{
     $result = $pdo->query("SELECT * FROM std");
     $usersList = [];
     while ($user = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -8,7 +9,8 @@ function getUsers ($pdo) {
     echo json_encode($usersList);
 }
 
-function getUser ($pdo, $id){
+function getUser ($pdo, $id): void
+{
     $result = $pdo->query("SELECT * FROM std WHERE `id` = $id");
 
     $data_res = $result->rowCount();
@@ -25,7 +27,8 @@ function getUser ($pdo, $id){
     }
 }
 
-function addPost($pdo, $data){
+function addPost($pdo, $data): void
+{
   $name = $data['name'];
   $surname = $data['surname'];
   $sql = "INSERT INTO `std`(`name`,`surname`) VALUES (:name, :surname)";
@@ -40,7 +43,8 @@ function addPost($pdo, $data){
   echo json_encode($res);
 }
 
-function updatePost($pdo, $data, $id){
+function updatePost($pdo, $data, $id): void
+{
     $name = $data['name'];
     $surname = $data['surname'];
     $sql = "UPDATE std SET name= :name, surname= :surname  WHERE id = :id";
@@ -54,7 +58,8 @@ function updatePost($pdo, $data, $id){
     echo json_encode($res);
 }
 
-function deletePost($pdo, $id){
+function deletePost($pdo, $id): void
+{
     $sql = "DELETE FROM `std` WHERE id = :id";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(["id"=>$id]);
@@ -64,4 +69,28 @@ function deletePost($pdo, $id){
         "message"=> "Post is deleted"
     ];
     echo json_encode($res);
+}
+
+function clean($value): string
+{
+    $value = trim($value);
+    $value = htmlspecialchars($value);
+    return $value;
+}
+
+function validator_form($method): array
+{
+
+    $errors = [];
+    foreach ($method as $key => $val){
+        $val = clean($val);
+        if(empty($val)){
+            $errors[$key] = "You need type your $key!";
+        }elseif(strlen($val) < 3 || strlen($val) > 20){
+            $errors[$key] = "In field $key you need type more than 3 symbol and not more than 20 symbol!";
+        }
+
+    }
+
+    return $errors;
 }

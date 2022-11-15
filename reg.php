@@ -14,34 +14,54 @@ $params = explode('/', $q);
 $type = $params[0];
 $id = $params[1];
 
-if($method === 'GET'){
-    if($type === 'users'){
-        if(isset($id)){
-            getUser($pdo, $id);
-        }else{
-            getUsers($pdo);
-        }
-    }
-}elseif ($method === 'POST'){
 
-    if($type === 'users'){
-        addPost($pdo,$_POST);
+switch ($method){
 
-    }
-}elseif ($method === 'PATCH'){
-    if($type === 'users'){
-        if(isset($id)){
-            $data = file_get_contents('php://input');
-            $data = json_decode($data, true);
-            updatePost($pdo,$data, $id);
+    case 'GET':
+        if($type === 'users'){
+            if(isset($id)){
+                getUser($pdo, $id);
+            }else{
+                getUsers($pdo);
+            }
         }
-    }
-}elseif ($method === 'DELETE'){
-    if($type === 'users'){
-      if(isset($id)){
-          deletePost($pdo,$id);
-      }
-    }
+        break;
+    case 'POST':
+        if($type === 'users'){
+            if(validator_form($_POST)){
+                $errors = validator_form($_POST);
+                echo json_encode($errors);
+            }else{
+                addPost($pdo,$_POST);
+            }
+
+
+
+
+
+        }
+        break;
+    case 'PATCH':
+        if($type === 'users'){
+            if(isset($id)){
+                $data = file_get_contents('php://input');
+                $data = json_decode($data, true);
+                if(validator_form($data)){
+                    $errors = validator_form($data);
+                    echo json_encode($errors);
+                }else{
+                    updatePost($pdo,$data, $id);
+                }
+
+            }
+        }
+        break;
+    case 'DELETE':
+        if($type === 'users'){
+            if(isset($id)){
+                deletePost($pdo,$id);
+            }
+        }
+        break;
+
 }
-
-
